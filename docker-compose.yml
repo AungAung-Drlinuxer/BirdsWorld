@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-birds
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  birdsworld:
+    build: .
+    container_name: birdsworld-api
+    restart: always
+    depends_on:
+      - mongodb
+    ports:
+      - "3001:3001"
+    environment:
+      - NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
+      - NEW_RELIC_APP_NAME=BirdsWorld
+      - NEW_RELIC_LOG_LEVEL=info
+      - NEW_RELIC_LOGGING_ENABLED=true
+      - NEW_RELIC_LOGGING_FORCE_STDOUT=true
+    env_file:
+      - .env
+
+volumes:
+  mongodb_data:
